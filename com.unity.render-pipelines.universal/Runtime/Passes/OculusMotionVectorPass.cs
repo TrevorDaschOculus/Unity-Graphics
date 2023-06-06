@@ -13,7 +13,6 @@ namespace UnityEngine.Rendering.Universal.Internal
     {
         FilteringSettings m_FilteringSettings;
         ProfilingSampler m_ProfilingSampler;
-        bool m_IsOpaque;
 
         RenderTargetIdentifier motionVectorColorIdentifier;
         RenderTargetIdentifier motionVectorDepthIdentifier;
@@ -24,7 +23,6 @@ namespace UnityEngine.Rendering.Universal.Internal
             m_ProfilingSampler = new ProfilingSampler(profilerTag);
             renderPassEvent = evt;
             m_FilteringSettings = new FilteringSettings(renderQueueRange, layerMask);
-            m_IsOpaque = opaque;
         }
 
         internal OculusMotionVectorPass(URPProfileId profileId, bool opaque, RenderPassEvent evt, RenderQueueRange renderQueueRange, LayerMask layerMask, StencilState stencilState, int stencilReference)
@@ -44,9 +42,7 @@ namespace UnityEngine.Rendering.Universal.Internal
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
             ConfigureTarget(motionVectorColorIdentifier, motionVectorDepthIdentifier);
-            if (m_IsOpaque) {
-                ConfigureClear(ClearFlag.All, Color.black);
-            }
+            ConfigureClear(ClearFlag.All, Color.black);
         }
 
         /// <inheritdoc/>
@@ -63,8 +59,7 @@ namespace UnityEngine.Rendering.Universal.Internal
                 Camera camera = renderingData.cameraData.camera;
                 var filterSettings = m_FilteringSettings;
 
-                var drawSettings = CreateDrawingSettings(new ShaderTagId("MotionVectors"), ref renderingData, 
-                    m_IsOpaque ? renderingData.cameraData.defaultOpaqueSortFlags : SortingCriteria.CommonTransparent);
+                var drawSettings = CreateDrawingSettings(new ShaderTagId("MotionVectors"), ref renderingData, renderingData.cameraData.defaultOpaqueSortFlags);
                 drawSettings.perObjectData = PerObjectData.MotionVectors;
                 context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings);
             }

@@ -900,7 +900,7 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
                 fieldDependencies = CoreFieldDependencies.Default,
 
                 // Conditional State
-                renderStates = CoreRenderStates.Default,
+                renderStates = CoreRenderStates.DepthNormalsOnly(target),
                 pragmas = CorePragmas.DOTSInstanced,
                 includes = CoreIncludes.MotionVectors,
                 defines = new DefineCollection(),

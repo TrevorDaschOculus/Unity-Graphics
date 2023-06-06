@@ -69,8 +69,7 @@ namespace UnityEngine.Rendering.Universal
         TileDepthRangePass m_TileDepthRangePass;
         TileDepthRangePass m_TileDepthRangeExtraPass; // TODO use subpass API to hide this pass
         DeferredPass m_DeferredPass;
-        OculusMotionVectorPass m_OculusMotionVecOpaquePass;
-        OculusMotionVectorPass m_OculusMotionVecTransparentPass;
+        OculusMotionVectorPass m_OculusMotionVecPass;
         DrawObjectsPass m_RenderOpaqueForwardOnlyPass;
         DrawObjectsPass m_RenderOpaqueForwardPass;
         DrawSkyboxPass m_DrawSkyboxPass;
@@ -242,9 +241,7 @@ namespace UnityEngine.Rendering.Universal
                 m_RenderOpaqueForwardOnlyPass = new DrawObjectsPass("Render Opaques Forward Only", forwardOnlyShaderTagIds, true, RenderPassEvent.BeforeRenderingOpaques, RenderQueueRange.opaque, data.opaqueLayerMask, forwardOnlyStencilState, forwardOnlyStencilRef);
             }
 
-            // Create MotionVector Passes for Oculus Application Space Warp
-            m_OculusMotionVecOpaquePass = new OculusMotionVectorPass(URPProfileId.DrawMVOpaqueObjects, true, RenderPassEvent.BeforeRenderingOpaques - 2, RenderQueueRange.opaque, data.opaqueLayerMask, m_DefaultStencilState, stencilData.stencilReference);
-            m_OculusMotionVecTransparentPass = new OculusMotionVectorPass(URPProfileId.DrawMVTransparentObjects, false, RenderPassEvent.BeforeRenderingOpaques - 1, RenderQueueRange.transparent, data.transparentLayerMask, m_DefaultStencilState, stencilData.stencilReference);
+            m_OculusMotionVecPass = new OculusMotionVectorPass(URPProfileId.DrawMVOpaqueObjects, true, RenderPassEvent.BeforeRenderingOpaques - 1, RenderQueueRange.all, data.opaqueLayerMask | data.transparentLayerMask, m_DefaultStencilState, stencilData.stencilReference);
 
             // Always create this pass even in deferred because we use it for wireframe rendering in the Editor or offscreen depth texture rendering.
             m_RenderOpaqueForwardPass = new DrawObjectsPass(URPProfileId.DrawOpaqueObjects, true, RenderPassEvent.BeforeRenderingOpaques, RenderQueueRange.opaque, data.opaqueLayerMask, m_DefaultStencilState, stencilData.stencilReference);
@@ -689,10 +686,8 @@ namespace UnityEngine.Rendering.Universal
                 rtMotionId = new RenderTargetIdentifier(rtMotionId, 0, CubemapFace.Unknown, -1);
 
                 // ID is the same since a RenderTexture encapsulates all the attachments, including both color+depth.
-                m_OculusMotionVecOpaquePass.Setup(rtMotionId, rtMotionId);
-                EnqueuePass(m_OculusMotionVecOpaquePass);
-                m_OculusMotionVecTransparentPass.Setup(rtMotionId, rtMotionId);
-                EnqueuePass(m_OculusMotionVecTransparentPass);
+                m_OculusMotionVecPass.Setup(rtMotionId, rtMotionId);
+                EnqueuePass(m_OculusMotionVecPass);
             }
 #endif
 
