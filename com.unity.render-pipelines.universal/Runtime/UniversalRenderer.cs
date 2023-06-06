@@ -242,8 +242,9 @@ namespace UnityEngine.Rendering.Universal
                 m_RenderOpaqueForwardOnlyPass = new DrawObjectsPass("Render Opaques Forward Only", forwardOnlyShaderTagIds, true, RenderPassEvent.BeforeRenderingOpaques, RenderQueueRange.opaque, data.opaqueLayerMask, forwardOnlyStencilState, forwardOnlyStencilRef);
             }
 
-            m_OculusMotionVecOpaquePass = new OculusMotionVectorPass(URPProfileId.DrawMVOpaqueObjects, true, RenderPassEvent.BeforeRenderingOpaques, RenderQueueRange.opaque, data.opaqueLayerMask, m_DefaultStencilState, stencilData.stencilReference);
-            m_OculusMotionVecTransparentPass = new OculusMotionVectorPass(URPProfileId.DrawMVTransparentObjects, false, RenderPassEvent.BeforeRenderingTransparents, RenderQueueRange.transparent, data.transparentLayerMask, m_DefaultStencilState, stencilData.stencilReference);
+            // Create MotionVector Passes for Oculus Application Space Warp
+            m_OculusMotionVecOpaquePass = new OculusMotionVectorPass(URPProfileId.DrawMVOpaqueObjects, true, RenderPassEvent.BeforeRenderingOpaques - 2, RenderQueueRange.opaque, data.opaqueLayerMask, m_DefaultStencilState, stencilData.stencilReference);
+            m_OculusMotionVecTransparentPass = new OculusMotionVectorPass(URPProfileId.DrawMVTransparentObjects, false, RenderPassEvent.BeforeRenderingOpaques - 1, RenderQueueRange.transparent, data.transparentLayerMask, m_DefaultStencilState, stencilData.stencilReference);
 
             // Always create this pass even in deferred because we use it for wireframe rendering in the Editor or offscreen depth texture rendering.
             m_RenderOpaqueForwardPass = new DrawObjectsPass(URPProfileId.DrawOpaqueObjects, true, RenderPassEvent.BeforeRenderingOpaques, RenderQueueRange.opaque, data.opaqueLayerMask, m_DefaultStencilState, stencilData.stencilReference);
