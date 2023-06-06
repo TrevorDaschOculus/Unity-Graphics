@@ -64,7 +64,7 @@ namespace UnityEngine.Rendering.Universal.Internal
                 var filterSettings = m_FilteringSettings;
 
                 var drawSettings = CreateDrawingSettings(new ShaderTagId("MotionVectors"), ref renderingData, 
-                    m_IsOpaque ? renderingData.cameraData.defaultOpaqueSortFlags : renderingData.cameraData.defaultTransparentSortFlags);
+                    m_IsOpaque ? renderingData.cameraData.defaultOpaqueSortFlags : SortingCriteria.CommonTransparent);
                 drawSettings.perObjectData = PerObjectData.MotionVectors;
                 context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings);
             }
