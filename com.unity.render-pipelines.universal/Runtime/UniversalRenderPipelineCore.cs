@@ -876,11 +876,12 @@ namespace UnityEngine.Rendering.Universal
         CopyDepth,
         DepthNormalPrepass,
         DepthPrepass,
+        DrawMVOpaqueObjects,
+        DrawMVTransparentObjects,
 
         // DrawObjectsPass
         DrawOpaqueObjects,
         DrawTransparentObjects,
-        DrawMVOpaqueObjects,
 
         // RenderObjectsPass
         //RenderObjects,

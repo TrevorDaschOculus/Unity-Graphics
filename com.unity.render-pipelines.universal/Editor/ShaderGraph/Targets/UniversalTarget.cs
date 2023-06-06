@@ -892,6 +892,7 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
 
                 // Port Mask
                 validVertexBlocks = CoreBlockMasks.Vertex,
+                validPixelBlocks = CoreBlockMasks.FragmentAlphaOnly,
 
                 // Fields
                 structs = CoreStructCollections.Default,
@@ -1509,11 +1510,11 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
         public static readonly IncludeCollection MotionVectors = new IncludeCollection
         {
             // Pre-graph
-            { CoreIncludes.CorePregraph },
-            { CoreIncludes.ShaderGraphPregraph },
+            { CorePregraph },
+            { ShaderGraphPregraph },
 
             // Post-graph
-            { CoreIncludes.CorePostgraph },
+            { CorePostgraph },
             { kMotionVectors, IncludeLocation.Postgraph },
         };
     }
