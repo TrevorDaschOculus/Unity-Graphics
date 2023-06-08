@@ -3,7 +3,6 @@
 struct Attributes
 {
     float4 positionOS : POSITION;
-    float3 previousPositionOS : TEXCOORD4;
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
@@ -15,12 +14,8 @@ struct Varyings
     UNITY_VERTEX_OUTPUT_STEREO
 };
 
-bool IsSmoothRotation(float3 prevAxis1, float3 prevAxis2, float3 currAxis1, float3 currAxis2)
-{
-    float angleThreshold = 0.984f; // cos(10 degrees)
-    float2 angleDot = float2(dot(normalize(prevAxis1), normalize(currAxis1)), dot(normalize(prevAxis2), normalize(currAxis2)));
-    return all(angleDot > angleThreshold);
-}
+// Custom Flag for Static MotionVectors
+half _MotionVectorsEnabled;
 
 Varyings vert(Attributes input)
 {
@@ -33,26 +28,13 @@ Varyings vert(Attributes input)
 
     float3 curWS = TransformObjectToWorld(input.positionOS.xyz);
     output.curPositionCS = TransformWorldToHClip(curWS);
-    if (unity_MotionVectorsParams.y == 0.0)
+    if (_MotionVectorsEnabled == 0.0)
     {
         output.prevPositionCS = output.curPositionCS;
     }
     else
     {
-        bool hasDeformation = unity_MotionVectorsParams.x > 0.0;
-        float3 effectivePositionOS = (hasDeformation ? input.previousPositionOS : input.positionOS.xyz);
-        float3 previousWS = TransformPreviousObjectToWorld(effectivePositionOS);
-
-        float4x4 previousOTW = GetPrevObjectToWorldMatrix();
-        float4x4 currentOTW = GetObjectToWorldMatrix();
-        if (!IsSmoothRotation(previousOTW._11_21_31, previousOTW._12_22_32, currentOTW._11_21_31, currentOTW._12_22_32))
-        {
-            output.prevPositionCS = TransformWorldToPrevHClip(curWS);
-        }
-        else
-        {
-            output.prevPositionCS = TransformWorldToPrevHClip(previousWS);
-        }
+        output.prevPositionCS = TransformWorldToPrevHClip(curWS);
     }
 
     return output;

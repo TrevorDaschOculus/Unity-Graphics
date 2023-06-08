@@ -251,7 +251,22 @@ namespace UnityEngine.Rendering.Universal
 
                 Debug.Assert(passInfo.motionVectorRenderTargetValid, "Invalid motion vector render target from XRDisplaySubsystem!");
             }
+#if UNITY_EDITOR
+            if (DebugOculusMotionVectorSettings.enableDebugMotionVectors)
+            {
+                passInfo.motionVectorRenderTarget = new RenderTargetIdentifier(DebugOculusMotionVectorSettings.motionVectorRenderTarget, 0, CubemapFace.Unknown, -1);
 
+                RenderTextureDescriptor xrMotionVectorDesc = DebugOculusMotionVectorSettings.renderTargetDesc;
+                RenderTextureDescriptor rtMotionVectorDesc = new RenderTextureDescriptor(xrMotionVectorDesc.width, xrMotionVectorDesc.height, xrMotionVectorDesc.colorFormat, xrMotionVectorDesc.depthBufferBits, xrMotionVectorDesc.mipCount);
+                rtMotionVectorDesc.dimension = DebugOculusMotionVectorSettings.renderTargetDesc.dimension;
+                rtMotionVectorDesc.volumeDepth = DebugOculusMotionVectorSettings.renderTargetDesc.volumeDepth;
+                rtMotionVectorDesc.vrUsage = DebugOculusMotionVectorSettings.renderTargetDesc.vrUsage;
+                rtMotionVectorDesc.sRGB = DebugOculusMotionVectorSettings.renderTargetDesc.sRGB;
+                passInfo.motionVectorRenderTargetDesc = rtMotionVectorDesc;
+
+                Debug.Assert(passInfo.motionVectorRenderTargetValid, "Invalid motion vector render target from XRDisplaySubsystem!");
+            }
+#endif
 
             return passInfo;
         }
