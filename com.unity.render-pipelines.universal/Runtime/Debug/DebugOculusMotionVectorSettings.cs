@@ -7,12 +7,14 @@ using UnityEngine.XR;
 	namespace UnityEngine.Rendering.Universal
 	{
 
-		public static class DebugOculusMotionVectorSettings 
+		public static class DebugOculusMotionVectorSettings
 		{
 			public static bool enableDebugMotionVectors;
 
 			public static RenderTexture motionVectorRenderTarget;
-        	public static RenderTextureDescriptor renderTargetDesc;
+        	public static RenderTextureDescriptor motionVectorRenderTargetDesc;
+            public static RenderTexture depthRenderTarget;
+            public static RenderTextureDescriptor depthRenderTargetDesc;
 		}
 
 }
