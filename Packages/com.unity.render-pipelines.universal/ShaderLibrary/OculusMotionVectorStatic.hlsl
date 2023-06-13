@@ -3,7 +3,6 @@
 struct Attributes
 {
     float4 positionOS : POSITION;
-    float3 previousPositionOS : TEXCOORD4;
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
@@ -15,14 +14,8 @@ struct Varyings
     UNITY_VERTEX_OUTPUT_STEREO
 };
 
-float3 TransformPrevWorldToObject(float3 positionWS)
-{
-    #if !defined(SHADER_STAGE_RAY_TRACING)
-    return mul(GetPrevWorldToObjectMatrix(), float4(positionWS, 1.0)).xyz;
-    #else
-    return (float3)0;
-    #endif
-}
+// Custom Flag for Static MotionVectors
+half _MotionVectorsEnabled;
 
 Varyings vert(Attributes input)
 {
@@ -35,20 +28,13 @@ Varyings vert(Attributes input)
 
     float3 curWS = TransformObjectToWorld(input.positionOS.xyz);
     output.curPositionCS = TransformWorldToHClip(curWS);
-    if (unity_MotionVectorsParams.y == 0.0)
+    if (_MotionVectorsEnabled == 0.0)
     {
         output.prevPositionCS = output.curPositionCS;
     }
     else
     {
-        bool hasDeformation = unity_MotionVectorsParams.x > 0.0;
-        // interpolate to our next deformed position
-        float3 effectivePositionOS = (hasDeformation ? (2.0 * input.positionOS.xyz - input.previousPositionOS) : input.positionOS.xyz);
-        // transform to our next world position
-        float3 nextWS = TransformObjectToWorld(TransformPrevWorldToObject(TransformObjectToWorld(effectivePositionOS)));
-        // interpolate back to our new 'previous' position
-        float3 previousWS = 2.0 * curWS - nextWS;
-        output.prevPositionCS = TransformWorldToPrevHClip(previousWS);
+        output.prevPositionCS = TransformWorldToPrevHClip(curWS);
     }
 
     return output;
