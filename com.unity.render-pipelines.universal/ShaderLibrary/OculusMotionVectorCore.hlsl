@@ -15,11 +15,13 @@ struct Varyings
     UNITY_VERTEX_OUTPUT_STEREO
 };
 
-bool IsSmoothRotation(float3 prevAxis1, float3 prevAxis2, float3 currAxis1, float3 currAxis2)
+float3 TransformPrevWorldToObject(float3 positionWS)
 {
-    float angleThreshold = 0.984f; // cos(10 degrees)
-    float2 angleDot = float2(dot(normalize(prevAxis1), normalize(currAxis1)), dot(normalize(prevAxis2), normalize(currAxis2)));
-    return all(angleDot > angleThreshold);
+    #if !defined(SHADER_STAGE_RAY_TRACING)
+    return mul(GetPrevWorldToObjectMatrix(), float4(positionWS, 1.0)).xyz;
+    #else
+    return (float3)0;
+    #endif
 }
 
 Varyings vert(Attributes input)
@@ -39,20 +41,14 @@ Varyings vert(Attributes input)
     }
     else
     {
-        bool hasDeformation = unity_MotionVectorsParams.x > 0.0;
-        float3 effectivePositionOS = (hasDeformation ? input.previousPositionOS : input.positionOS.xyz);
-        float3 previousWS = TransformPreviousObjectToWorld(effectivePositionOS);
-
-        float4x4 previousOTW = GetPrevObjectToWorldMatrix();
-        float4x4 currentOTW = GetObjectToWorldMatrix();
-        if (!IsSmoothRotation(previousOTW._11_21_31, previousOTW._12_22_32, currentOTW._11_21_31, currentOTW._12_22_32))
-        {
-            output.prevPositionCS = TransformWorldToPrevHClip(curWS);
-        }
-        else
-        {
-            output.prevPositionCS = TransformWorldToPrevHClip(previousWS);
-        }
+        bool hasDeformation = unity_MotionVectorsParams.x > 0.0;        
+        // interpolate to our next deformed position
+        float3 effectivePositionOS = (hasDeformation ? (2.0 * input.positionOS.xyz - input.previousPositionOS) : input.positionOS.xyz);
+        // transform to our next world position
+        float3 nextWS = TransformObjectToWorld(TransformPrevWorldToObject(TransformObjectToWorld(effectivePositionOS)));
+        // interpolate back to our new 'previous' position
+        float3 previousWS = 2.0 * curWS - nextWS;
+        output.prevPositionCS = TransformWorldToPrevHClip(previousWS);
     }
 
     return output;
