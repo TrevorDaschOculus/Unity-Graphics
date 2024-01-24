@@ -203,8 +203,7 @@ Varyings BuildVaryings(Attributes input)
     else
     {
         bool hasDeformation = unity_MotionVectorsParams.x > 0.0;
-        // interpolate to our next deformed position
-        float3 effectivePositionOS = (hasDeformation ? (2.0 * input.positionOS.xyz - input.previousPositionOS) : input.positionOS.xyz);
+        float3 effectivePositionOS = (hasDeformation ? input.uv4.xyz : input.positionOS.xyz);
         float3 previousWS = TransformPreviousObjectToWorld(effectivePositionOS);
         output.prevPositionCS = TransformWorldToPrevHClip(previousWS);
     }
