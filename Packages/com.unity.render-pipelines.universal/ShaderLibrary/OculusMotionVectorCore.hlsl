@@ -15,15 +15,6 @@ struct Varyings
     UNITY_VERTEX_OUTPUT_STEREO
 };
 
-float3 TransformPrevWorldToObject(float3 positionWS)
-{
-    #if !defined(SHADER_STAGE_RAY_TRACING)
-    return mul(GetPrevWorldToObjectMatrix(), float4(positionWS, 1.0)).xyz;
-    #else
-    return (float3)0;
-    #endif
-}
-
 Varyings vert(Attributes input)
 {
     Varyings output = (Varyings)0;
@@ -44,10 +35,7 @@ Varyings vert(Attributes input)
         bool hasDeformation = unity_MotionVectorsParams.x > 0.0;
         // interpolate to our next deformed position
         float3 effectivePositionOS = (hasDeformation ? (2.0 * input.positionOS.xyz - input.previousPositionOS) : input.positionOS.xyz);
-        // transform to our next world position
-        float3 nextWS = TransformObjectToWorld(TransformPrevWorldToObject(TransformObjectToWorld(effectivePositionOS)));
-        // interpolate back to our new 'previous' position
-        float3 previousWS = 2.0 * curWS - nextWS;
+        float3 previousWS = TransformPreviousObjectToWorld(effectivePositionOS);
         output.prevPositionCS = TransformWorldToPrevHClip(previousWS);
     }
 
